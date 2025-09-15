@@ -25,13 +25,13 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.title("📊 MACD + RSI Based Stock Trend Predictor")
+st.title("My Buddy - Stock Trend Analyser")
 
 # ================= SIDEBAR =================
 st.sidebar.header("🔧 Controls")
-symbol = st.sidebar.text_input("📌 Stock Symbol (e.g., TCS.NS, INFY.NS)", key="stock_symbol_input")
-period = st.sidebar.selectbox("📅 Select Data Period", ["15d", "1mo", "3mo", "6mo", "1y"], index=1)
-predict_btn = st.sidebar.button("🔮 Predict Trend", use_container_width=True)
+symbol = st.sidebar.text_input("Stock Symbol (e.g., TCS.NS, INFY.NS)", key="stock_symbol_input")
+period = st.sidebar.selectbox("Select Data Period", ["15d", "1mo", "3mo", "6mo", "1y"], index=1)
+predict_btn = st.sidebar.button("Analyse Trend", use_container_width=True)
 
 # ================= HELPER: RSI =================
 def calculate_rsi(series, period=14):
@@ -46,12 +46,12 @@ def calculate_rsi(series, period=14):
 # ================= MAIN =================
 if predict_btn:
     if not symbol:
-        st.warning("⚠️ Please enter a stock symbol in the sidebar.")
+        st.warning("Please enter a stock symbol after stock name (.NS) in the sidebar.")
     else:
         try:
             data = yf.download(symbol, period=period, interval="1d")
             if data.empty:
-                st.error("❌ No data found. Try another symbol or longer period (e.g., 3mo).")
+                st.error("No data found as (.NS) after stock name.")
             else:
                 if isinstance(data.columns, pd.MultiIndex):
                     data.columns = data.columns.get_level_values(0)
@@ -74,10 +74,10 @@ if predict_btn:
 
                     # ===== METRICS =====
                     st.markdown("### 📊 Key Metrics")
-                    col1, col2, col3 = st.columns(3)
+                    col1, col2 = st.columns(2)
                     col1.metric("💰 Last Close", f"{data['Close'].iloc[-1]:.2f}")
-                    col2.metric("📈 MACD", f"{latest_macd:.4f}")
-                    col3.metric("📊 RSI", f"{latest_rsi:.2f}")
+                   # col2.metric("📈 MACD", f"{latest_macd:.4f}")
+                    col2.metric("📊 RSI", f"{latest_rsi:.2f}")
 
                     # ===== TREND MESSAGE =====
                     if len(valid) >= 2:
@@ -90,27 +90,27 @@ if predict_btn:
                             st.info("➡️ No crossover. Trend continuing.")
 
                     if latest_rsi > 70:
-                        st.warning(f"⚠️ RSI {latest_rsi:.2f} → Overbought")
+                        st.warning(f" RSI {latest_rsi:.2f} → Overbuying")
                     elif latest_rsi < 30:
-                        st.success(f"💚 RSI {latest_rsi:.2f} → Oversold")
+                        st.success(f" RSI {latest_rsi:.2f} → Overselling")
                     else:
-                        st.info(f"📊 RSI {latest_rsi:.2f} → Neutral")
+                        st.info(f" RSI {latest_rsi:.2f} → Neutral")
 
                     st.markdown("<br>", unsafe_allow_html=True)
 
                     # ===== LAST 7 DAYS TABLE =====
                     st.subheader("📅 Last 7 Days Stock Data")
                     data_reset = data.copy().reset_index()
-                    data_reset['Date'] = data_reset['Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+                    data_reset['Date'] = data_reset['Date'].dt.strftime('%Y-%m-%d')
 
-                    st.dataframe(data_reset[['Date', 'Open', 'High', 'Low', 'Close', 'MACD', 'Signal', 'RSI']].tail(7))
+                    st.dataframe(data_reset[['Date', 'Open', 'High', 'Low', 'Close', 'RSI']].tail(7))
 
                     st.markdown("<br>", unsafe_allow_html=True)
 
                     # ===== CSV DOWNLOAD BUTTON =====
-                    csv_data = data_reset[['Date', 'Open', 'High', 'Low', 'Close', 'MACD', 'Signal', 'RSI']].to_csv(index=False).encode('utf-8')
+                    csv_data = data_reset[['Date', 'Open', 'High', 'Low', 'Close', 'RSI']].to_csv(index=False).encode('utf-8')
                     st.download_button(
-                    label="📥 Download Full Data as CSV",
+                    label="📥 Download Full Data",
                     data=csv_data,
                     file_name=f"{symbol}_stock_data.csv",
                     mime="text/csv",
@@ -122,10 +122,11 @@ if predict_btn:
                         "responsive": True,
                         "displaylogo": False,
                         "displayModeBar": True,
-                        "modeBarButtonsToRemove": [
-                            "zoom", "pan", "select", "lasso2d",
-                            "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d"
-                        ],
+                        "zoom": True,
+                       # "modeBarButtonsToRemove": [
+                            #"zoom" "pan", "select", "lasso2d",
+                           # "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d"
+                       # ],
                         "toImageButtonOptions": {"format": "png", "filename": symbol, "scale": 2}
                     }
 
@@ -141,15 +142,15 @@ if predict_btn:
                     vol_colors = np.where(data['Close'] >= data['Open'], 'rgba(0,255,0,0.3)','rgba(255,0,0,0.3)')
                     fig.add_trace(go.Bar(
                         x=data.index, y=data['Volume'], name='Volume',
-                        marker=dict(color=vol_colors), yaxis='y2', opacity=0.5
+                        marker=dict(color=vol_colors), yaxis='y2', opacity=1
                     ))
                     fig.update_layout(
-                        xaxis_rangeslider_visible=False,
+                        xaxis_rangeslider_visible=True,
                         template="plotly_dark",
-                        height=650,
+                        height=500,
                         dragmode=False,
                         title=f"{symbol} Candlestick Chart",
-                        yaxis=dict(title="Price", automargin=True),
+                        yaxis=dict(title="Price Bar", automargin=True),
                         yaxis2=dict(overlaying='y', side='right', visible=False),
                         margin=dict(l=10,r=10,t=40,b=20),
                         autosize=True
@@ -161,12 +162,12 @@ if predict_btn:
                     macd_fig = go.Figure()
                     macd_hist = data['MACD'] - data['Signal']
                     macd_fig.add_trace(go.Bar(x=data.index, y=macd_hist, name='Histogram',
-                                              marker_color=np.where(macd_hist>=0,'green','red'), opacity=0.5))
+                                              marker_color=np.where(macd_hist>=0,'green','red'), opacity=1))
                     macd_fig.add_trace(go.Scatter(x=data.index, y=data['MACD'], mode='lines',
                                                   name='MACD', line=dict(color='orange', width=2)))
                     macd_fig.add_trace(go.Scatter(x=data.index, y=data['Signal'], mode='lines',
-                                                  name='Signal', line=dict(color='purple', width=1.5, dash='dot')))
-                    macd_fig.update_layout(template="plotly_dark", height=300, dragmode=False,
+                                                  name='Signal', line=dict(color='purple', width=2, dash='dot')))
+                    macd_fig.update_layout(template="plotly_dark", height=400, dragmode=False,
                                            title="MACD (12,26) & Signal (9)",
                                            margin=dict(l=10,r=10,t=40,b=20), autosize=True)
                     st.plotly_chart(macd_fig, use_container_width=True, config=chart_config)
@@ -180,8 +181,8 @@ if predict_btn:
                                                  name='Overbought (70)', line=dict(color='red', dash='dash')))
                     rsi_fig.add_trace(go.Scatter(x=data.index, y=[30]*len(data), mode='lines',
                                                  name='Oversold (30)', line=dict(color='green', dash='dash')))
-                    rsi_fig.update_layout(template="plotly_dark", height=300, dragmode=False,
-                                          title="RSI (14) with Overbought/Oversold Levels",
+                    rsi_fig.update_layout(template="plotly_dark", height=350, dragmode=False,
+                                          title="RSI (14) with Overbuying/Overselling Levels",
                                           yaxis=dict(range=[0,100], automargin=True),
                                           margin=dict(l=10,r=10,t=40,b=20), autosize=True)
                     st.plotly_chart(rsi_fig, use_container_width=True, config=chart_config)
