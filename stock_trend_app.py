@@ -11,15 +11,54 @@ st.set_page_config(page_title="MACD + RSI Stock Trend Predictor", page_icon="ðŸ“
 st.markdown(
     """
     <style>
-    .stApp {background-color: #0e1117; color: #ffffff;}
-    [data-testid="stSidebar"] {background-color: #87CEFA; color: #000000;}
-    [data-testid="stSidebar"]::-webkit-scrollbar {width: 8px;}
-    [data-testid="stSidebar"]::-webkit-scrollbar-thumb {background-color: #555555; border-radius: 4px;}
-    .stDataFrame div[data-testid="stHorizontalBlock"] {background-color: #1e1e1e; color: #ffffff;}
-    .stDivider {border-top: none; margin: 0;}
-    header[data-testid="stHeader"] {background-color: #28a745 !important;}
-    header[data-testid="stHeader"] * {color: white !important;}
-    header[data-testid="stHeader"] button {background-color: #28a745 !important; color: white !important;}
+    /* Main background and text */
+    .stApp {
+        background-color: #1E1E1E 
+        color: #ffffff;
+    }
+
+    /* Sidebar styling */
+    [data-testid="stSidebar"] {
+        background-color:  #C0C0C0;
+        color: #000000;
+    }
+    [data-testid="stSidebar"]::-webkit-scrollbar {
+        width: 8px;
+    }
+    [data-testid="stSidebar"]::-webkit-scrollbar-thumb {
+        background-color: #555;
+        border-radius: 4px;
+    }
+    [data-testid="stSidebar"]::-webkit-scrollbar-thumb:hover {
+        background-color: #777;
+    }
+
+    /* DataFrame background (dark tables) */
+    .stDataFrame {
+        background-color: #1e1e1e;
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 8px;
+    }
+
+    /* Remove default dividers */
+    .stDivider {
+        border-top: none;
+        margin: 0;
+    }
+
+    /* Header styling */
+    header[data-testid="stHeader"] {
+        background-color: #4169E1 !important;
+    }
+    header[data-testid="stHeader"] * {
+        color: white !important;
+    }
+    header[data-testid="stHeader"] button {
+        background-color: #4169E1 !important;
+        color: white !important;
+        border: none;
+    }
     </style>
     """,
     unsafe_allow_html=True
